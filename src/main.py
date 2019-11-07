@@ -34,14 +34,14 @@ def gen_exp(p,q):
 
 def gen_RSApq(n):
     x=gen_prime(n)
-    while(test_sfactor(x,n)):
+    while(not test_sfactor(x,n)):
         x=gen_prime(n)
     return x
     
 def test_sfactor(x,n):
     prod=1
     for nb in factors:
-        prod*=math.gcd(nb**((n//2)+1),x)
+        prod*=math.gcd(nb**((n//2)),x)
     return x/prod > 10**50
 
 def gen_prime(n):
