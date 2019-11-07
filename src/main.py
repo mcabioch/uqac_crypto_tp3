@@ -50,8 +50,10 @@ def gen_prime(n):
         n=200
     a=10**n
     b=a*10
+    x=random.randrange(a,b)
+    x|=1
     while(x==0 or x&1!=1 or MillerRabin.is_Prime(x)==False):
-        x=random.randrange(a,b)
+        x+=2
     return x
 
 def xgcd(a, b):
