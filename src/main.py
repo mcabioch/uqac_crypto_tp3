@@ -4,33 +4,31 @@ import random
 import math
 import sys
 import MillerRabin
+import algo
 
-factors=[int(nb) for nb in range(3,10000,2) if MillerRabin.is_Prime(nb)]
+factors=[int(nb) for nb in range(3,100,2) if MillerRabin.is_Prime(nb)]
 
 def main():
-    lenNb=random.randint(4,6)
-    eps=random.randint(1,2)
+    lenNb=random.randint(200,210)
+    eps=random.randint(1,10)
     
     p=gen_RSApq(lenNb)
-    print("p has been generated")
     q=gen_RSApq(lenNb+eps)
-    print("q has been generated")
     n=p*q
     e=gen_exp(p,q)
-    print("e has been generated")
     d=congru_equation(e,1,(p-1)*(q-1))
     
-    m=random.randint(n/10,n)
+    m=random.randint(10**100,10**200)
     print(m)
-    c=expModulaire(m,e,n)
-    plain=expModulaire(c,d,n)
+    c=pow(m,e,n)
+    plain=pow(c,d,n)
     print(plain==m)
 
 
 def gen_exp(p,q):
     e=1
     prod=(p-1)*(q-1)
-    n=random.randint(4,6)
+    n=random.randint(100,300)
     while(math.gcd(e,prod)!=1):
         e=gen_prime(n)
     return e
@@ -44,61 +42,26 @@ def gen_RSApq(n):
     #ainsi p-1 ne sera pas seulement composé de petits facteurs
     k=random.randrange(a,b)
     x=k*x0+1
-    x|=1
-    congruCompo=pow(2,x-1,x)
-    while(congruCompo!=1 or not MillerRabin.is_Prime(x)):
-        while(there_is_sfactor(x)):
-            x+=x0
-        congruCompo=pow(2,x-1,x)
+    while(x&1 and pow(2,x-1,x)!=1 and not MillerRabin.is_Prime(x)):
+        x+=x0
     return x
-    
+
+def test_sfactor(x,n):
+    prod=1
+    for nb in factors:
+        prod*=math.gcd(nb**((n//2)),x)
+    return x/prod > 10**50
+
 def gen_prime(n):
-    x=0
-    if(n<1):
-        n=1
+    if(n<200):
+        n=200
     a=10**n
-    b=a*100
+    b=a*10
     x=random.randrange(a,b)
     x|=1
-    congruCompo=pow(2,x-1,x)
-    congruCompo=1
-    while(congruCompo!=1 or not MillerRabin.is_Prime(x)):
-        #es qu'on peut facilement diviser ce nombre (petit facteur)
-        while(there_is_sfactor(x)):
-            x=random.randrange(a,b)
-            x|=1
-        #congruCompo=pow(2,x-1,x)
+    while(pow(2,x-1,x)!=1 or MillerRabin.is_Prime(x)==False):
+        x+=2
     return x
-
-def factorPminus1(n):
-    B=20
-    a=2
-    b=a%n
-    b=pow(b,math.factorial(B),n)
-    d=math.gcd(b-1,n)
-    return 1<d and d<n
-
-def there_is_sfactor(x):
-    #si x est pair
-    if(not x&1):
-        return True
-    #si x peut être divisé par un des petits nombres premiers
-    for nb in factors:
-        if(x%nb==0):
-            return True
-    return False
-
-def expModulaire(x,puissance,modulo):
-    x=x%modulo
-    congruCompo=1
-    #on exploite ici le fait que l'on calcule tous les (2^2^n)
-    #et que l'on a la décomposition en base 2 de puissance
-    while(puissance>0):
-        if(puissance & 1):
-            congruCompo=(congruCompo*x)%modulo
-        puissance>>=1
-        x=(x*x)%modulo
-    return congruCompo
 
 def xgcd(a, b):
     """return (g, x, y) such that a*x + b*y = g = gcd(a, b)"""
