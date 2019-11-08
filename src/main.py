@@ -8,13 +8,16 @@ import MillerRabin
 factors=[int(nb) for nb in range(3,10000,2) if MillerRabin.is_Prime(nb)]
 
 def main():
-    lenNb=random.randint(5,8)
-    eps=random.randint(1,3)
+    lenNb=random.randint(4,6)
+    eps=random.randint(1,2)
     
     p=gen_RSApq(lenNb)
+    print("p has been generated")
     q=gen_RSApq(lenNb+eps)
+    print("q has been generated")
     n=p*q
     e=gen_exp(p,q)
+    print("e has been generated")
     d=congru_equation(e,1,(p-1)*(q-1))
     
     m=random.randint(n/10,n)
@@ -27,7 +30,7 @@ def main():
 def gen_exp(p,q):
     e=1
     prod=(p-1)*(q-1)
-    n=random.randint(5,10)
+    n=random.randint(4,6)
     while(math.gcd(e,prod)!=1):
         e=gen_prime(n)
     return e
@@ -58,11 +61,13 @@ def gen_prime(n):
     x=random.randrange(a,b)
     x|=1
     congruCompo=pow(2,x-1,x)
+    congruCompo=1
     while(congruCompo!=1 or not MillerRabin.is_Prime(x)):
         #es qu'on peut facilement diviser ce nombre (petit facteur)
         while(there_is_sfactor(x)):
-            x+=2
-        congruCompo=pow(2,x-1,x)
+            x=random.randrange(a,b)
+            x|=1
+        #congruCompo=pow(2,x-1,x)
     return x
 
 def factorPminus1(n):
