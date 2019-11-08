@@ -5,10 +5,10 @@ import math
 import sys
 import MillerRabin
 
-factors=[int(nb) for nb in range(2,1000) if MillerRabin.is_Prime(nb)]
+factors=[int(nb) for nb in range(3,10000,2) if MillerRabin.is_Prime(nb)]
 
 def main():
-    lenNb=random.randint(200,210)
+    lenNb=random.randint(5,20)
     eps=random.randint(1,10)
     
     p=gen_RSApq(lenNb)
@@ -19,15 +19,15 @@ def main():
     
     m=random.randint(10**100,10**200)
     print(m)
-    c=(m**e)%n
-    plain=(c**d)%n
+    c=expModulaire(m,e,n)
+    plain=expModulaire(c,d,n)
     print(plain==m)
 
 
 def gen_exp(p,q):
     e=1
     prod=(p-1)*(q-1)
-    n=random.randint(100,900)
+    n=random.randint(5,10)
     while(math.gcd(e,prod)!=1):
         e=gen_prime(n)
     return e
@@ -41,32 +41,34 @@ def gen_RSApq(n):
 def test_sfactor(x,n):
     prod=1
     for nb in factors:
-        prod*=math.gcd(nb**((n//2)),x)
+        prod*=math.gcd(pow(nb,n//2),x)
     return x/prod > 10**50
 
 def gen_prime(n):
     x=0
-    if(n<20):
-        n=20
+    if(n<5):
+        n=5
     a=10**n
-    b=a*10
+    b=a*100
     x=random.randrange(a,b)
     x|=1
-    x=11
-    congruCompo=expModulaire(2,x-1,x)
+    congruCompo=pow(2,x-1,x)
     while(congruCompo!=1 or not MillerRabin.is_Prime(x)):
         while(there_is_sfactor(x)):
-            x+=2
-        congruCompo=expModulaire(2,x-1,x)
+            x+=random.randrange(2,10)
+            x|=1
+        congruCompo=pow(2,x-1,x)
     return x
 
 def there_is_sfactor(x):
+    if(not x&1):
+        return True
     for nb in factors:
         if(x%nb==0):
             return True
     return False
 
-def expModulaire(x,puissance,modulo):
+def expModulaire_v1(x,puissance,modulo):
     exp=1
     congruXPuissExp=x
     xPuissExp=x
@@ -77,6 +79,16 @@ def expModulaire(x,puissance,modulo):
         xPuissExp*=xPuissExp
         exp*=2
         congruXPuissExp=(congruXPuissExp**2)%modulo
+    return congruCompo
+
+def expModulaire(x,puissance,modulo):
+    x=x%modulo
+    congruCompo=1
+    while(puissance>0):
+        if(puissance & 1):
+            congruCompo=(congruCompo*x)%modulo
+        puissance>>=1
+        x=(x*x)%modulo
     return congruCompo
 
 def xgcd(a, b):
