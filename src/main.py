@@ -5,7 +5,7 @@ import math
 import sys
 import MillerRabin
 
-factors=[int(nb) for nb in range(2,100) if MillerRabin.is_Prime(nb)]
+factors=[int(nb) for nb in range(2,1000) if MillerRabin.is_Prime(nb)]
 
 def main():
     lenNb=random.randint(200,210)
@@ -46,15 +46,38 @@ def test_sfactor(x,n):
 
 def gen_prime(n):
     x=0
-    if(n<200):
-        n=200
+    if(n<20):
+        n=20
     a=10**n
     b=a*10
     x=random.randrange(a,b)
     x|=1
-    while(x==0 or x&1!=1 or MillerRabin.is_Prime(x)==False):
-        x+=2
+    x=11
+    congruCompo=expModulaire(2,x-1,x)
+    while(congruCompo!=1 or not MillerRabin.is_Prime(x)):
+        while(there_is_sfactor(x)):
+            x+=2
+        congruCompo=expModulaire(2,x-1,x)
     return x
+
+def there_is_sfactor(x):
+    for nb in factors:
+        if(x%nb==0):
+            return True
+    return False
+
+def expModulaire(x,puissance,modulo):
+    exp=1
+    congruXPuissExp=x
+    xPuissExp=x
+    congruCompo=1
+    while(exp<puissance):
+        if(exp & puissance):
+            congruCompo=(congruCompo*congruXPuissExp)%modulo
+        xPuissExp*=xPuissExp
+        exp*=2
+        congruXPuissExp=(congruXPuissExp**2)%modulo
+    return congruCompo
 
 def xgcd(a, b):
     """return (g, x, y) such that a*x + b*y = g = gcd(a, b)"""
